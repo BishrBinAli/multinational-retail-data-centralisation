@@ -1,0 +1,4 @@
+Database/
+
+# File with Database credentials
+db_creds.yaml

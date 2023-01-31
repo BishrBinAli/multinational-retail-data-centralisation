@@ -1,2 +1,2 @@
-class DataClean:
+class DataCleaning:
     pass
