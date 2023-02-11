@@ -3,13 +3,10 @@ from database_utils import DatabaseConnector
 
 
 class DataExtractor:
-    # def __init__() -> None:
-
     def read_rds_table(self, DBConnector, table_name):
         engine = DBConnector.db_engine
         with engine.connect() as con:
-            df = pd.read_sql_table(table_name, con=con)
-        # print(df.info())
+            df = pd.read_sql_table(table_name, con=con, index_col='index')
         return df
 
 
