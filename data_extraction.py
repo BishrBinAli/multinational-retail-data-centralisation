@@ -1,5 +1,6 @@
 import pandas as pd
 from database_utils import DatabaseConnector
+import tabula
 
 
 class DataExtractor:
@@ -8,6 +9,12 @@ class DataExtractor:
         with engine.connect() as con:
             df = pd.read_sql_table(table_name, con=con, index_col='index')
         return df
+
+    def retrieve_pdf_data(self, pdf_link):
+        df_list = tabula.read_pdf(pdf_link, pages='all')
+        pdf_df = pd.concat(df_list)
+        return pdf_df
+
 
 
 if __name__ == '__main__':

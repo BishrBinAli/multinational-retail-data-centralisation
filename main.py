@@ -17,5 +17,9 @@ if __name__ == '__main__':
     DBConnector_local = DatabaseConnector('db_creds_local.yaml')
     DBConnector_local.upload_to_db(cleaned_user_df, 'dim_users')
 
+    pdf_link = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"
+    pdf_df = DtExtractor.retrieve_pdf_data(pdf_link)
+
+
 
 # %%
