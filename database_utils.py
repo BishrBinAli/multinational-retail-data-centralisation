@@ -32,6 +32,11 @@ class DatabaseConnector:
         print(db_tables)
         return db_tables
 
+    def upload_to_db(self, df, table_name) -> None:
+        with self.db_engine.connect() as con:
+            df.to_sql(table_name, con, if_exists='replace', index=False)
+
+
 
 if __name__ == "__main__":
     DB = DatabaseConnector('db_creds.yaml')

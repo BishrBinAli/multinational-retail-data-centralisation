@@ -58,5 +58,8 @@ class DataCleaning:
             return [phone_num, extension]
 
         cleaned_user_df[['phone_number', 'phone_extension']] = cleaned_user_df.apply(format_phone_num, axis=1, result_type='expand')
+
+        # Resetting index
+        cleaned_user_df.reset_index(inplace=True, drop=True)
         
         return cleaned_user_df

@@ -1,4 +1,7 @@
 Database/
 
-# File with Database credentials
+# File with Database credentials to database on AWS
 db_creds.yaml
+
+# File with Database credentials to local database
+db_creds_local.yaml
