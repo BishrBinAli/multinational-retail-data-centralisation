@@ -63,3 +63,24 @@ class DataCleaning:
         cleaned_user_df.reset_index(inplace=True, drop=True)
         
         return cleaned_user_df
+
+
+    def clean_card_data(self, card_df):
+
+        # Removing rows with NULL values
+        card_df = card_df[card_df['card_number'] != 'NULL']
+
+        # Removing rows with data that does not make sense
+        # Removing rows with alphabets in card number
+        card_df = card_df[~card_df['card_number'].str.contains('[a-zA-z]', na=False, regex=True)]
+
+        # Removing '?' from card_numbers
+        card_df['card_number'] = card_df['card_number'].astype('str').str.replace("?", "")
+
+        # Convert date column to datetype
+        card_df['date_payment_confirmed'] = pd.to_datetime(card_df['date_payment_confirmed'], infer_datetime_format=True, errors='coerce')
+
+        # Convert card_provider to category type 
+        card_df['card_provider'] = card_df['card_provider'].astype('category')
+
+        return card_df

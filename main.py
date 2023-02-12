@@ -11,15 +11,18 @@ if __name__ == '__main__':
     DtCleaner = DataCleaning()
     table_names = DBConnector_AWS.list_db_tables()
     user_table_name = [table for table in table_names if 'user' in table][0]
+
+    # Getting user details from AWS database and cleaning the data
     user_df = DtExtractor.read_rds_table(DBConnector_AWS, user_table_name)
     cleaned_user_df = DtCleaner.clean_user_data(user_df)
-
+    # Uploading user details to local database
     DBConnector_local = DatabaseConnector('db_creds_local.yaml')
     DBConnector_local.upload_to_db(cleaned_user_df, 'dim_users')
 
-    pdf_link = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"
-    pdf_df = DtExtractor.retrieve_pdf_data(pdf_link)
+    # Getting card details from pdf link and cleaning it
+    card_pdf = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"
+    card_df = DtExtractor.retrieve_pdf_data(card_pdf)
+    cleaned_card_df = DtCleaner.clean_card_data(card_df)
+    # Uploading card details to local database
+    DBConnector_local.upload_to_db(cleaned_card_df, 'dim_card_details')
 
-
-
-# %%
