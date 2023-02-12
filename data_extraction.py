@@ -1,6 +1,7 @@
 import pandas as pd
 from database_utils import DatabaseConnector
 import tabula
+import requests
 
 
 class DataExtractor:
@@ -14,6 +15,13 @@ class DataExtractor:
         df_list = tabula.read_pdf(pdf_link, pages='all')
         pdf_df = pd.concat(df_list)
         return pdf_df
+
+    def list_number_of_stores(self, api_endpoint, headers):
+        response = requests.get(api_endpoint, headers=headers)
+        response_data = response.json()
+        number_of_stores = response_data['number_stores']
+        return number_of_stores
+        
 
 
 
