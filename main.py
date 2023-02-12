@@ -21,6 +21,7 @@ if __name__ == '__main__':
     DBConnector_local = DatabaseConnector('db_creds_local.yaml')
     DBConnector_local.upload_to_db(cleaned_user_df, 'dim_users')
 
+    # %%
     # Getting card details from pdf link and cleaning it
     card_pdf = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"
     card_df = DtExtractor.retrieve_pdf_data(card_pdf)
@@ -29,9 +30,11 @@ if __name__ == '__main__':
     DBConnector_local.upload_to_db(cleaned_card_df, 'dim_card_details')
 
     # %%
-    # Getting store_details from an api
+    # Getting store_details from an api and cleaning it
     api_headers = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
     num_stores_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
     number_of_stores = DtExtractor.list_number_of_stores(num_stores_endpoint,api_headers)
 
+    store_details_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}'
+    stores_df = DtExtractor.retrieve_stores_data(store_details_endpoint, api_headers, number_of_stores)
 

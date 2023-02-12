@@ -21,7 +21,16 @@ class DataExtractor:
         response_data = response.json()
         number_of_stores = response_data['number_stores']
         return number_of_stores
-        
+    
+    def retrieve_stores_data(self, endpoint_template, headers, num_stores):
+        stores_data_list = []
+        for i in range(num_stores):
+            api_endpoint = endpoint_template.format(store_number=i)
+            response = requests.get(api_endpoint, headers=headers)
+            stores_data_list.append(response.json())
+        stores_data_df = pd.DataFrame(stores_data_list)
+        stores_data_df.set_index('index', inplace=True)
+        return stores_data_df
 
 
 
