@@ -37,4 +37,10 @@ if __name__ == '__main__':
 
     store_details_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}'
     stores_df = DtExtractor.retrieve_stores_data(store_details_endpoint, api_headers, number_of_stores)
+    
+    cleaned_stores_df = DtCleaner.clean_store_data(stores_df)
 
+    # Uploading store details to local database
+    DBConnector_local.upload_to_db(cleaned_stores_df, 'dim_store_details')
+
+# %%

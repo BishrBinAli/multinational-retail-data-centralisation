@@ -84,3 +84,36 @@ class DataCleaning:
         card_df['card_provider'] = card_df['card_provider'].astype('category')
 
         return card_df
+
+
+    def clean_store_data(self, store_df):
+
+        # Replacing NULL and N/A values with np.nan
+        store_df = store_df.replace(dict.fromkeys(['NULL', 'N/A'], np.nan))
+        # Removing rows with all NULL values
+        store_df.dropna(how='all', inplace=True)
+
+        # Removing rows with nonsensical data
+        store_df = store_df[~store_df['locality'].str.contains('\d', na=False)]
+
+        # Correct continent values with extra characters
+        store_df.loc[store_df['continent'].str.contains('Europe', na=False), 'continent'] = 'Europe'
+        store_df.loc[store_df['continent'].str.contains('America', na=False), 'continent'] = 'America'
+        
+        # Remove alphabets from staff_numbers
+        store_df['staff_numbers'] = store_df['staff_numbers'].str.replace('\D',"", regex=True)
+
+        # Convert country_code, continent, store_type columns to category type 
+        store_df['country_code'] = store_df['country_code'].astype('category')
+        store_df['continent'] = store_df['continent'].astype('category')
+        store_df['store_type'] =store_df['store_type'].astype('category')
+
+        # Convert opening_date column to datetype
+        store_df['opening_date'] = pd.to_datetime(store_df['opening_date'], infer_datetime_format=True, errors='coerce')
+
+        # Replacing \n in the address column with ,
+        store_df['address'] = store_df['address'].str.replace('\\n', ", ")
+
+        return store_df
+
+        
