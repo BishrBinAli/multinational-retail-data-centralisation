@@ -43,4 +43,9 @@ if __name__ == '__main__':
     # Uploading store details to local database
     DBConnector_local.upload_to_db(cleaned_stores_df, 'dim_store_details')
 
-# %%
+
+    # %%
+    # Getting product details from an AWS S3 bucket
+    file_s3_address = "s3://data-handling-public/products.csv"
+    products_df = DtExtractor.extract_from_s3(file_s3_address)
+
