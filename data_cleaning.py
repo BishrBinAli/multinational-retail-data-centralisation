@@ -186,3 +186,14 @@ class DataCleaning:
         products_df['removed'] = products_df['removed'].astype('category')
 
         return products_df
+
+
+    def clean_orders_data(self, orders_df):
+
+        # Resetting index
+        orders_df.reset_index(drop=True, inplace=True)
+
+        # Dropping first_name, last_name, level_0 and 1 columns
+        orders_df = orders_df.drop(columns=['level_0', 'first_name', 'last_name', '1']) 
+
+        return orders_df

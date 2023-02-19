@@ -13,6 +13,7 @@ if __name__ == '__main__':
     DtCleaner = DataCleaning()
     table_names = DBConnector_AWS.list_db_tables()
     user_table_name = [table for table in table_names if 'user' in table][0]
+    orders_table_name = [table for table in table_names if 'orders' in table][0]
 
     # %%
     # Getting user details from AWS database and cleaning the data
@@ -49,10 +50,18 @@ if __name__ == '__main__':
     file_s3_address = "s3://data-handling-public/products.csv"
     products_df = DtExtractor.extract_from_s3(file_s3_address)
     # Converting product weights to kg
-    products_df = DtCleaner.convert_product_weights(products_df)
+    cleaned_products_df = DtCleaner.convert_product_weights(products_df)
     # Cleaning products_data
-    products_df = DtCleaner.clean_products_data(products_df)
+    cleaned_products_df = DtCleaner.clean_products_data(cleaned_products_df)
     # Uploading product details to local database
-    DBConnector_local.upload_to_db(products_df, 'dim_products')
+    DBConnector_local.upload_to_db(cleaned_products_df, 'dim_products')
+
+
+    # %%
+    # Getting orders data from AWS database and cleaning it
+    orders_df = DtExtractor.read_rds_table(DBConnector_AWS, orders_table_name)
+    cleaned_orders_df = DtCleaner.clean_orders_data(orders_df)
+    # Uploading orders data to local database
+    DBConnector_local.upload_to_db(cleaned_orders_df, 'orders_table')
 
 # %%
