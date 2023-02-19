@@ -43,6 +43,12 @@ class DataExtractor:
         df = pd.read_csv(s3_object, index_col=0)
         return df
 
+    def extract_json_from_url(self, file_url):
+        response = requests.get(file_url)
+        data = response.json()
+        df = pd.DataFrame(data)
+        return df
+
 
 
 

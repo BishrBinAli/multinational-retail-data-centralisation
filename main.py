@@ -64,4 +64,12 @@ if __name__ == '__main__':
     # Uploading orders data to local database
     DBConnector_local.upload_to_db(cleaned_orders_df, 'orders_table')
 
+
+    # %%
+    # Getting and cleaning date events data from json file stored in S3
+    file_url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
+    date_events_df = DtExtractor.extract_json_from_url(file_url)
+    
+
+
 # %%
