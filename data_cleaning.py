@@ -117,3 +117,41 @@ class DataCleaning:
         return store_df
 
         
+    def convert_product_weights(self, products_df):
+
+        # Removing full stops(.)
+        products_df['weight'] = products_df['weight'].str.replace(r'(?<=\D)\.|(?=(\D))|\.$', "", regex=True)
+
+        # Removing leading and trailing spaces
+        products_df['weight'] = products_df['weight'].str.strip()
+
+        # Getting value and unit from weight column
+        products_df['unit'] = products_df['weight'].str.extract(r'([A-Za-z]+$)')
+        products_df['value'] = products_df['weight'].str.replace(r'([A-Za-z]+$)',"",regex=True)
+
+        # Converting weight to kg
+        def convert_to_kg(x):
+            weight = x['weight']
+            value = x['value']
+            unit = x['unit']
+            multiplier = {
+                'g' : 0.001,
+                'kg' : 1,
+                'ml' : 0.001,
+                'oz' : 0.02835
+            }
+            if unit not in ['g','ml', 'kg', 'oz']:
+                weight = np.nan
+            else:
+                if 'x' in str(value):
+                    value = value.replace('x','*')
+                    value = eval(value)
+                weight = round(float(value) * multiplier[unit], 3)
+            
+            return weight
+
+        products_df['weight'] = products_df.apply(convert_to_kg, axis=1)
+
+        products_df = products_df.drop(columns=['unit', 'value'])
+
+        return products_df

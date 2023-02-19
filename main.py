@@ -48,4 +48,6 @@ if __name__ == '__main__':
     # Getting product details from an AWS S3 bucket
     file_s3_address = "s3://data-handling-public/products.csv"
     products_df = DtExtractor.extract_from_s3(file_s3_address)
+    # Converting product weights to kg
+    products_df = DtCleaner.convert_product_weights(products_df)
 
