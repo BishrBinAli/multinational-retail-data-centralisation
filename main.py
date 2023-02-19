@@ -8,6 +8,7 @@ from database_utils import DatabaseConnector
 if __name__ == '__main__':
     # %%
     DBConnector_AWS = DatabaseConnector('db_creds.yaml')
+    DBConnector_local = DatabaseConnector('db_creds_local.yaml')
     DtExtractor = DataExtractor()
     DtCleaner = DataCleaning()
     table_names = DBConnector_AWS.list_db_tables()
@@ -18,7 +19,6 @@ if __name__ == '__main__':
     user_df = DtExtractor.read_rds_table(DBConnector_AWS, user_table_name)
     cleaned_user_df = DtCleaner.clean_user_data(user_df)
     # Uploading user details to local database
-    DBConnector_local = DatabaseConnector('db_creds_local.yaml')
     DBConnector_local.upload_to_db(cleaned_user_df, 'dim_users')
 
     # %%
@@ -50,4 +50,9 @@ if __name__ == '__main__':
     products_df = DtExtractor.extract_from_s3(file_s3_address)
     # Converting product weights to kg
     products_df = DtCleaner.convert_product_weights(products_df)
+    # Cleaning products_data
+    products_df = DtCleaner.clean_products_data(products_df)
+    # Uploading product details to local database
+    DBConnector_local.upload_to_db(products_df, 'dim_products')
 
+# %%

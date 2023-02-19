@@ -82,6 +82,9 @@ class DataCleaning:
 
         # Convert card_provider to category type 
         card_df['card_provider'] = card_df['card_provider'].astype('category')
+        
+        # Resetting index
+        card_df.reset_index(inplace=True, drop=True)
 
         return card_df
 
@@ -113,6 +116,9 @@ class DataCleaning:
 
         # Replacing \n in the address column with ,
         store_df['address'] = store_df['address'].str.replace('\\n', ", ")
+
+        # Resetting index
+        store_df.reset_index(inplace=True, drop=True)
 
         return store_df
 
@@ -153,5 +159,30 @@ class DataCleaning:
         products_df['weight'] = products_df.apply(convert_to_kg, axis=1)
 
         products_df = products_df.drop(columns=['unit', 'value'])
+
+        return products_df
+
+    
+    def clean_products_data(self, products_df):
+
+        # Removing rows with all null values
+        products_df = products_df.dropna(how='all')
+
+        # Removing rows without a valid uuid
+        products_df = products_df[products_df['uuid'].str.fullmatch(r'^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$')]
+
+        # Dropping rows with same product name, keeping the last added one
+        products_df = products_df.sort_values(['product_name','date_added'])
+        products_df = products_df[~products_df.duplicated(subset=['product_name'], keep='last')]
+
+        # Resetting index
+        products_df.reset_index(inplace=True, drop=True)
+
+        # Converting date_added column to datetype
+        products_df['date_added'] = pd.to_datetime(products_df['date_added'], infer_datetime_format=True, errors='coerce')
+
+        # Converting category and removed columns to category type
+        products_df['category'] = products_df['category'].astype('category')
+        products_df['removed'] = products_df['removed'].astype('category')
 
         return products_df
