@@ -74,4 +74,18 @@ if __name__ == '__main__':
     DBConnector_local.upload_to_db(cleaned_date_events_df, 'dim_date_times')
 
 
-# %%
+    # %%
+    # Changing orders_table data types
+    card_number_length = cleaned_orders_df['card_number'].apply(lambda x: len(str(x))).max()
+    store_code_length = cleaned_orders_df['store_code'].apply(lambda x: len(str(x))).max()
+    product_code_length = cleaned_orders_df['product_code'].apply(lambda x: len(str(x))).max()
+    orders_new_types = {
+        'date_uuid': 'UUID',
+        'user_uuid': 'UUID',
+        'card_number': f'VARCHAR({card_number_length})',
+        'store_code': f'VARCHAR({store_code_length})',
+        'product_code': f'VARCHAR({product_code_length})',
+        'product_quantity': 'SMALLINT'
+    }
+    DBConnector_local.change_column_types('orders_table', orders_new_types)
+

@@ -36,6 +36,18 @@ class DatabaseConnector:
         with self.db_engine.connect() as con:
             df.to_sql(table_name, con, if_exists='replace', index=False)
 
+    def change_column_types(self, table_name, new_types) -> None:
+        """
+        new_types: dictionary with column name as key and new type as value
+        """
+        sql_stmt = f'ALTER TABLE {table_name}'
+        for key in new_types:
+            sql_stmt = sql_stmt + f' ALTER COLUMN {key} TYPE {new_types[key]} USING {key}::{new_types[key]},'
+        sql_stmt = sql_stmt[:-1]
+        with self.db_engine.connect() as con:
+            con.execute(sql_stmt)
+
+
 
 
 if __name__ == "__main__":
