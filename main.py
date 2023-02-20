@@ -69,7 +69,9 @@ if __name__ == '__main__':
     # Getting and cleaning date events data from json file stored in S3
     file_url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
     date_events_df = DtExtractor.extract_json_from_url(file_url)
-    
+    cleaned_date_events_df = DtCleaner.clean_date_events_data(date_events_df)
+    # Uploading date events data to local database
+    DBConnector_local.upload_to_db(cleaned_date_events_df, 'dim_date_times')
 
 
 # %%

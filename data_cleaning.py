@@ -197,3 +197,25 @@ class DataCleaning:
         orders_df = orders_df.drop(columns=['level_0', 'first_name', 'last_name', '1']) 
 
         return orders_df
+
+    
+    def clean_date_events_data(self, date_events_df):
+
+        # Replace 'NULL' values with np.nan
+        date_events_df = date_events_df.replace('NULL', np.nan)
+
+        # Remove rows with all null values
+        date_events_df = date_events_df.dropna(how='all')
+
+        # Remove nonsense rows - remove rows that do not have correct uuid format
+        date_events_df = date_events_df[date_events_df['date_uuid'].str.fullmatch(r'^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$')]
+
+        # Converting timestamp column to datetime.time type
+        date_events_df['timestamp'] = pd.to_datetime(date_events_df['timestamp']).dt.time
+
+        # Converting day,month and time_period columns to category type
+        date_events_df['day'] = date_events_df['day'].astype('category')
+        date_events_df['month'] = date_events_df['month'].astype('category')
+        date_events_df['time_period'] = date_events_df['time_period'].astype('category')
+
+        return date_events_df
