@@ -79,6 +79,8 @@ if __name__ == '__main__':
     card_number_length = cleaned_orders_df['card_number'].apply(lambda x: len(str(x))).max()
     store_code_length = cleaned_orders_df['store_code'].apply(lambda x: len(str(x))).max()
     product_code_length = cleaned_orders_df['product_code'].apply(lambda x: len(str(x))).max()
+    # In postgreSQL
+    # SELECT MAX(LENGTH(card_number)), MAX(LENGTH(store_code)), MAX(LENGTH(product_code)) FROM orders_table
     orders_new_types = {
         'date_uuid': 'UUID',
         'user_uuid': 'UUID',
@@ -89,3 +91,19 @@ if __name__ == '__main__':
     }
     DBConnector_local.change_column_types('orders_table', orders_new_types)
 
+    # %%
+    # Changing column data types of dim_users table
+    country_code_length = cleaned_user_df['country_code'].apply(lambda x: len(str(x))).max()
+    # In postgreSQL
+    # SELECT MAX(LENGTH(country_code)) FROM dim_users
+    users_new_types = {
+        'first_name': 'VARCHAR(255)',
+        'last_name': 'VARCHAR(255)',
+        'date_of_birth': 'DATE',
+        'country_code': f'VARCHAR({country_code_length})',
+        'user_uuid': 'UUID',
+        'join_date': 'DATE'
+    }
+    DBConnector_local.change_column_types('dim_users', users_new_types)
+
+# %%
