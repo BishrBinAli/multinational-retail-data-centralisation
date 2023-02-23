@@ -106,4 +106,42 @@ if __name__ == '__main__':
     }
     DBConnector_local.change_column_types('dim_users', users_new_types)
 
+    # %%
+    # Changing column data types of dim_store_details table
+    # Merging two latitute columns into one in dim_store_details
+    with DBConnector_local.db_engine.connect() as con:
+        sql_statement = """UPDATE dim_store_details SET latitude = COALESCE(latitude, lat);
+    ALTER TABLE dim_store_details DROP COLUMN lat;"""
+        con.execute(sql_statement)
+    # %%
+    with DBConnector_local.db_engine.connect() as con:
+        sql_statement = "SELECT MAX(LENGTH(store_code)) FROM dim_store_details"
+        store_code_length = con.execute(sql_statement).fetchall()[0][0]
+        sql_statement = "SELECT MAX(LENGTH(country_code)) FROM dim_store_details"
+        country_code_length = con.execute(sql_statement).fetchall()[0][0]
+    # So as to be able to enter N/A
+    country_code_length = max(country_code_length, 3)
+    # %%
+    store_new_types = {
+        'longitude': 'FLOAT',
+        'locality': 'VARCHAR(255)',
+        'store_code': f'VARCHAR({store_code_length})',
+        'staff_numbers': 'SMALLINT',
+        'opening_date': 'DATE',
+        'store_type': 'VARCHAR(255)',
+        'latitude': 'FLOAT',
+        'country_code': f'VARCHAR({country_code_length})',
+        'continent': 'VARCHAR(255)'
+    }
+    DBConnector_local.change_column_types('dim_store_details', store_new_types)
+    # %%
+    with DBConnector_local.db_engine.connect() as con:
+        sql_statement = """UPDATE dim_store_details 
+        SET 
+            address = COALESCE(address, 'N/A'),
+            locality = COALESCE(locality, 'N/A'),
+            country_code = COALESCE(country_code, 'N/A'),
+            continent = COALESCE(continent, 'N/A')
+        WHERE store_type = 'Web Portal';"""
+        con.execute(sql_statement)
 # %%

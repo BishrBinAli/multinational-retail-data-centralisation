@@ -40,12 +40,14 @@ class DatabaseConnector:
         """
         new_types: dictionary with column name as key and new type as value
         """
+        # Not actually good practice to use '+' to concatenate sql statements due to SQL injection attack risk
         sql_stmt = f'ALTER TABLE {table_name}'
         for key in new_types:
             sql_stmt = sql_stmt + f' ALTER COLUMN {key} TYPE {new_types[key]} USING {key}::{new_types[key]},'
         sql_stmt = sql_stmt[:-1]
         with self.db_engine.connect() as con:
             con.execute(sql_stmt)
+
 
 
 
