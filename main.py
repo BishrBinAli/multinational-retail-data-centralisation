@@ -195,4 +195,24 @@ if __name__ == '__main__':
         'weight_class': 'VARCHAR(14)'
     }
     DBConnector_local.change_column_types('dim_products', products_new_types)
+    
+    # Changing data types of dim_date_times table
+    # %%
+    date_new_types = {
+        'month': 'CHAR(2)',
+        'year': 'CHAR(4)',
+        'day': 'CHAR(2)',
+        'time_period': 'VARCHAR(10)',
+        'date_uuid': 'UUID'
+    }
+    DBConnector_local.change_column_types('dim_date_times', date_new_types)
+    
+    # Changing data types of dim_card_details table
+    # %%
+    card_new_types = {
+        'card_number': 'VARCHAR(19)',
+        'expiry_date': 'VARCHAR(5)',
+        'date_payment_confirmed': 'DATE'
+    }
+    DBConnector_local.change_column_types('dim_card_details', card_new_types)
 # %%
