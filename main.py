@@ -144,4 +144,55 @@ if __name__ == '__main__':
             continent = COALESCE(continent, 'N/A')
         WHERE store_type = 'Web Portal';"""
         con.execute(sql_statement)
+
+
+    
+    # Changing data types of dim_products table
+    # %%
+    # Removing '£' from price
+    with DBConnector_local.db_engine.connect() as con:
+        sql_statement = """UPDATE dim_products 
+        SET product_price = REPLACE(product_price, '£', '');"""
+        # Also, TRIM('£' FROM product_price)
+        con.execute(sql_statement)
+    # %%
+    # Creating new column 'weight class'
+    with DBConnector_local.db_engine.connect() as con:
+        sql_statement = """
+        ALTER TABLE dim_products
+        ADD COLUMN weight_class VARCHAR(14);
+        UPDATE dim_products 
+        SET weight_class = CASE
+            WHEN weight < 3 THEN 'Light'
+            WHEN weight BETWEEN 3 AND 40 THEN 'Mid_Sized'
+            WHEN weight BETWEEN 41 AND 140 THEN 'Heavy'
+            WHEN weight > 140 THEN 'Truck_Required'
+        END;"""
+        con.execute(sql_statement)
+    # %%
+    # Changing removed column to still_available
+    with DBConnector_local.db_engine.connect() as con:
+        sql_statement = """
+        ALTER TABLE dim_products
+        RENAME COLUMN removed TO still_available;
+        UPDATE dim_products 
+        SET still_available = CASE
+            WHEN still_available = 'Removed' THEN FALSE
+	        WHEN still_available = 'Still_avaliable' THEN TRUE
+        END;
+        """
+        con.execute(sql_statement)
+    # %%
+    products_new_types = {
+        'product_price': 'FLOAT',
+        'weight': 'FLOAT',
+        '"EAN"': 'VARCHAR(17)',
+        # for column values, have to use double quotes to use it as they are in SQL, single quotes doesnt work
+        'product_code': 'VARCHAR(11)',
+        'date_added': 'DATE',
+        'uuid': 'UUID',
+        'still_available': 'BOOLEAN',
+        'weight_class': 'VARCHAR(14)'
+    }
+    DBConnector_local.change_column_types('dim_products', products_new_types)
 # %%
