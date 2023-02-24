@@ -215,4 +215,26 @@ if __name__ == '__main__':
         'date_payment_confirmed': 'DATE'
     }
     DBConnector_local.change_column_types('dim_card_details', card_new_types)
+    
+    # Adding primary keys to the tables
+    # %%
+    # dim_card_details - card_number
+    # dim_date_times - date_uuid
+    # dim_products - product_code
+    # dim_store_details - store_code
+    # dim_users - user_uuid
+    with DBConnector_local.db_engine.connect() as con:
+        sql_statement = """
+        ALTER TABLE dim_card_details
+        ADD CONSTRAINT dim_card_details_pk PRIMARY KEY (card_number);
+        ALTER TABLE dim_date_times
+        ADD CONSTRAINT dim_date_details_pk PRIMARY KEY (date_uuid);
+        ALTER TABLE dim_products
+        ADD CONSTRAINT dim_products_pk PRIMARY KEY (product_code);
+        ALTER TABLE dim_store_details
+        ADD CONSTRAINT dim_store_details_pk PRIMARY KEY (store_code);
+        ALTER TABLE dim_users
+        ADD CONSTRAINT dim_users_pk PRIMARY KEY (user_uuid);
+        """
+        con.execute(sql_statement)
 # %%
