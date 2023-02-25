@@ -1,4 +1,5 @@
 # %%
+import numpy as np
 import pandas as pd
 from data_cleaning import DataCleaning
 from data_extraction import DataExtractor
@@ -13,7 +14,8 @@ if __name__ == '__main__':
     DtCleaner = DataCleaning()
     table_names = DBConnector_AWS.list_db_tables()
     user_table_name = [table for table in table_names if 'user' in table][0]
-    orders_table_name = [table for table in table_names if 'orders' in table][0]
+    orders_table_name = [
+        table for table in table_names if 'orders' in table][0]
 
     # %%
     # Getting user details from AWS database and cleaning the data
@@ -34,16 +36,17 @@ if __name__ == '__main__':
     # Getting store_details from an api and cleaning it
     api_headers = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
     num_stores_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
-    number_of_stores = DtExtractor.list_number_of_stores(num_stores_endpoint,api_headers)
+    number_of_stores = DtExtractor.list_number_of_stores(
+        num_stores_endpoint, api_headers)
 
     store_details_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}'
-    stores_df = DtExtractor.retrieve_stores_data(store_details_endpoint, api_headers, number_of_stores)
-    
+    stores_df = DtExtractor.retrieve_stores_data(
+        store_details_endpoint, api_headers, number_of_stores)
+
     cleaned_stores_df = DtCleaner.clean_store_data(stores_df)
 
     # Uploading store details to local database
     DBConnector_local.upload_to_db(cleaned_stores_df, 'dim_store_details')
-
 
     # %%
     # Getting product details from an AWS S3 bucket
@@ -56,14 +59,12 @@ if __name__ == '__main__':
     # Uploading product details to local database
     DBConnector_local.upload_to_db(cleaned_products_df, 'dim_products')
 
-
     # %%
     # Getting orders data from AWS database and cleaning it
     orders_df = DtExtractor.read_rds_table(DBConnector_AWS, orders_table_name)
     cleaned_orders_df = DtCleaner.clean_orders_data(orders_df)
     # Uploading orders data to local database
     DBConnector_local.upload_to_db(cleaned_orders_df, 'orders_table')
-
 
     # %%
     # Getting and cleaning date events data from json file stored in S3
@@ -73,12 +74,14 @@ if __name__ == '__main__':
     # Uploading date events data to local database
     DBConnector_local.upload_to_db(cleaned_date_events_df, 'dim_date_times')
 
-
     # %%
     # Changing orders_table data types
-    card_number_length = cleaned_orders_df['card_number'].apply(lambda x: len(str(x))).max()
-    store_code_length = cleaned_orders_df['store_code'].apply(lambda x: len(str(x))).max()
-    product_code_length = cleaned_orders_df['product_code'].apply(lambda x: len(str(x))).max()
+    card_number_length = cleaned_orders_df['card_number'].apply(
+        lambda x: len(str(x))).max()
+    store_code_length = cleaned_orders_df['store_code'].apply(
+        lambda x: len(str(x))).max()
+    product_code_length = cleaned_orders_df['product_code'].apply(
+        lambda x: len(str(x))).max()
     # In postgreSQL
     # SELECT MAX(LENGTH(card_number)), MAX(LENGTH(store_code)), MAX(LENGTH(product_code)) FROM orders_table
     orders_new_types = {
@@ -93,7 +96,8 @@ if __name__ == '__main__':
 
     # %%
     # Changing column data types of dim_users table
-    country_code_length = cleaned_user_df['country_code'].apply(lambda x: len(str(x))).max()
+    country_code_length = cleaned_user_df['country_code'].apply(
+        lambda x: len(str(x))).max()
     # In postgreSQL
     # SELECT MAX(LENGTH(country_code)) FROM dim_users
     users_new_types = {
@@ -145,8 +149,6 @@ if __name__ == '__main__':
         WHERE store_type = 'Web Portal';"""
         con.execute(sql_statement)
 
-
-    
     # Changing data types of dim_products table
     # %%
     # Removing '£' from price
@@ -195,7 +197,7 @@ if __name__ == '__main__':
         'weight_class': 'VARCHAR(14)'
     }
     DBConnector_local.change_column_types('dim_products', products_new_types)
-    
+
     # Changing data types of dim_date_times table
     # %%
     date_new_types = {
@@ -206,7 +208,7 @@ if __name__ == '__main__':
         'date_uuid': 'UUID'
     }
     DBConnector_local.change_column_types('dim_date_times', date_new_types)
-    
+
     # Changing data types of dim_card_details table
     # %%
     card_new_types = {
@@ -215,8 +217,8 @@ if __name__ == '__main__':
         'date_payment_confirmed': 'DATE'
     }
     DBConnector_local.change_column_types('dim_card_details', card_new_types)
-    
-    # Adding primary keys to the tables
+
+    # Setting primary keys of the tables
     # %%
     # dim_card_details - card_number
     # dim_date_times - date_uuid
@@ -237,4 +239,18 @@ if __name__ == '__main__':
         ADD CONSTRAINT dim_users_pk PRIMARY KEY (user_uuid);
         """
         con.execute(sql_statement)
+
+    # Adding foreign keys to orders_table
+    # %%
+    with DBConnector_local.db_engine.connect() as con:
+        sql_statement = """
+        ALTER TABLE orders_table
+        ADD CONSTRAINT fk_dim_card_details FOREIGN KEY (card_number) REFERENCES dim_card_details(card_number),
+        ADD CONSTRAINT fk_dim_date_times FOREIGN KEY (date_uuid) REFERENCES dim_date_times(date_uuid),
+        ADD CONSTRAINT fk_dim_products FOREIGN KEY (product_code) REFERENCES dim_products(product_code),
+        ADD CONSTRAINT fk_dim_store_details FOREIGN KEY (store_code) REFERENCES dim_store_details(store_code),
+        ADD CONSTRAINT fk_dim_users FOREIGN KEY (user_uuid) REFERENCES dim_users(user_uuid);
+        """
+        con.execute(sql_statement)
+
 # %%
