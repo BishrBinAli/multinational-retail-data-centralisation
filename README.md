@@ -2,7 +2,7 @@
 
 ## Summary
 
-Collect data about a multinational retail company's operations from different sources (such as AWS RDS database, S3 storage, API, pdf file, json file and csv file) and clean & transform the data to suitable formats, in order to store them in a newly created local postgres database with a star based schema
+Collect data about a multinational retail company's operations from different sources (such as AWS RDS database, S3 storage, API, pdf file, json file and csv file) and clean & transform the data to suitable formats, in order to store them in a newly created local postgres database with a star based schema. This makes its sales data accessible from one centralised location and allows to analyse and get up to date metrics about the business
 
 ## Milestone 2
 
